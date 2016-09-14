@@ -1,5 +1,8 @@
 FROM docker:1.12
 
+ENV DOCKER_COMPOSE_VERSION 1.8.0
+ENV COMPOSE_API_VERSION=1.18
+
 # https://github.com/docker/docker/blob/master/project/PACKAGERS.md#runtime-dependencies
 RUN apk add --no-cache \
 		btrfs-progs \
@@ -7,7 +10,13 @@ RUN apk add --no-cache \
 		e2fsprogs-extra \
 		iptables \
 		xfsprogs \
-		xz
+		xz \
+		py-pip \
+		openssh \
+		git
+# build docker-compose
+RUN pip install --upgrade pip
+RUN pip install -U docker-compose==${DOCKER_COMPOSE_VERSION}
 
 # TODO aufs-tools
 
@@ -29,4 +38,4 @@ VOLUME /var/lib/docker
 EXPOSE 2375
 
 ENTRYPOINT ["dockerd-entrypoint.sh"]
-CMD []
+CMD ["/usr/sbin/sshd","-D"]
