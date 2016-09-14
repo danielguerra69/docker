@@ -15,8 +15,9 @@ RUN apk add --no-cache \
 		openssh \
 		git
 # build docker-compose
-RUN pip install --upgrade pip
-RUN pip install -U docker-compose==${DOCKER_COMPOSE_VERSION}
+RUN pip install --upgrade pip \
+	&& pip install -U docker-compose==${DOCKER_COMPOSE_VERSION} \
+	&& rm -rf /root/.cache
 
 # TODO aufs-tools
 
@@ -35,7 +36,10 @@ RUN wget "https://raw.githubusercontent.com/docker/docker/${DIND_COMMIT}/hack/di
 COPY dockerd-entrypoint.sh /usr/local/bin/
 
 VOLUME /var/lib/docker
-EXPOSE 2375
+EXPOSE 2375 22
+
+#make sure we get fresh keys
+RUN rm -rf /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_dsa_key
 
 ENTRYPOINT ["dockerd-entrypoint.sh"]
-CMD ["/usr/sbin/sshd","-D"]
+CMD []
